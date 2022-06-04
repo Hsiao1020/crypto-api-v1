@@ -1,0 +1,43 @@
+GET BTC history prices by datetime
+---
+tags:
+  - BTC
+
+parameters:
+  - in: header
+    name: Authorization
+    required: true
+  - name: btc_datetime
+    in: path
+    type: string
+    required: true
+    description: The btc datetime you want to query
+
+responses:
+  200:
+    description: BTC history price by datetime
+    schema:
+      id: btc_datetime
+      properties:
+        Open:
+          type: float
+          description: Open price
+        High:
+          type: float
+          description: High price
+        Low:
+          type: float
+          description: Low price
+        Close:
+          type: float
+          description: Close price
+        Adj_Close:
+          type: float
+          description: Adj Close price
+        Volume:
+          type: integer
+          description: Volume of btc
+        
+
+  401:
+    description: Fails to get items due to authentication error

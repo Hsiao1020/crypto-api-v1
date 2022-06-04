@@ -1,0 +1,16 @@
+GET all history BTC prices
+---
+tags:
+  - BTC
+
+parameters:
+  - in: header
+    name: Authorization
+    required: true
+
+responses:
+  200:
+    description: all history BTC prices
+
+  401:
+    description: Fails to get items due to authentication error

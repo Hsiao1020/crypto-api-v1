@@ -6,13 +6,15 @@
 
 - **heroku網址** : https://nccu-crypto-api.herokuapp.com/
 
-- **部署並執行**:
+- **部署**:
   - `git clone https://github.com/Hsiao1020/crypto-api-v1.git`
   - `cd crypto-api-v1`
   - `pip install virtualenv`
   - `virtualenv venv`
   - `source venv/bin/activate`
   - `pip install -r requirements.txt`
+ 
+- **執行**:
   - `source venv/bin/activate`
   - `flask run`
   

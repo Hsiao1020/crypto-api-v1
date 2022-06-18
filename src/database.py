@@ -1,9 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 from datetime import datetime
 import string 
 import random
 
 db = SQLAlchemy()
+ma = Marshmallow()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -16,6 +18,10 @@ class User(db.Model):
     def __repr__(self) -> str:
         return "User>>> {self.username}"
 
+class UserSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+
 class BTC(db.Model):
     btc_datetime = db.Column(db.DateTime, primary_key=True)
     Open = db.Column(db.Float, nullable=False)
@@ -24,23 +30,12 @@ class BTC(db.Model):
     Close = db.Column(db.Float, nullable=False)
     Adj_Close = db.Column(db.Float, nullable=False)
     Volume = db.Column(db.Integer, nullable=False)
-    # url = db.Column(db.Text, nullable=False)
-    # short_url = db.Column(db.String(3), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
-    # def generate_short_characters(self):
-    #     charaters = string.digits + string.ascii_letters
-    #     picked_chars = ''.join(random.choices(charaters, k=3))
-    #     link = self.query.filter_by(short_url=picked_chars).first()
-
-    #     if link:
-    #         self.generate_short_characters()
-    #     else:
-    #         return picked_chars
-
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # self.short_url = self.generate_short_characters()
 
+class BTCSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = BTC

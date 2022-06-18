@@ -3,11 +3,11 @@ import os
 from src.constants.http_status_code import HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
 from src.auth import auth
 from src.btc import btc
-from src.database import db
+from src.database import db, ma
 from src.config.swagger import template, swagger_config
 from flask_jwt_extended import JWTManager
 from flasgger import Swagger, swag_from
-
+from flask_migrate import Migrate
 
 
 def create_app(test_config=None):
@@ -21,7 +21,7 @@ def create_app(test_config=None):
             JWT_SECRET_KEY=os.environ.get("JWT_SECRET_KEY"),
 
             SWAGGER={
-                "title": "Crpyto API",
+                "title": "Crypto API",
                 "universion": 3
             }
         )
@@ -30,6 +30,11 @@ def create_app(test_config=None):
 
     db.app = app
     db.init_app(app)
+    ma.app = app
+    ma.init_app(app)
+
+    migrate = Migrate(compare_type=True)
+    migrate.init_app(app, db)
 
     JWTManager(app)
 
@@ -46,8 +51,4 @@ def create_app(test_config=None):
     def handle_500(e):
         return jsonify({"error": "Something went wrong, we are working on it"}), HTTP_500_INTERNAL_SERVER_ERROR
 
-    
-
     return app
-
-

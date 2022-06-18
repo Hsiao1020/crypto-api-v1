@@ -3,10 +3,13 @@ from flask_jwt_extended import jwt_required
 from datetime import datetime
 from flasgger import swag_from
 
-from src.database import BTC, db
+from src.database import db, BTC, BTCSchema
 from src.constants.http_status_code import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND
 
 btc = Blueprint("btc", __name__, url_prefix="/api/v1/btc")
+
+btc_schema = BTCSchema()
+btcs_schema = BTCSchema(many=True)
 
 
 @btc.route("/", methods=["POST", "GET"])
@@ -34,75 +37,17 @@ def handle_btc():
 
         db.session.add(btc_price)
         db.session.commit()
-
-        return jsonify({
-            "btc_datetime": btc_price.btc_datetime,
-            "Open": btc_price.Open,
-            "High": btc_price.High,
-            "Low": btc_price.Low,
-            "Close": btc_price.Close,
-            "Adj_Close": btc_price.Adj_Close,
-            "Volume": btc_price.Volume,
-            "created_at": btc_price.created_at,
-            "updated_at": btc_price.updated_at
-        }), HTTP_201_CREATED
+        return btc_schema.jsonify(btc_price), HTTP_201_CREATED
 
     else:
-        # start = request.args.get("start", None)
-        # end = request.args.get("end", datetime.now())
-
-        # if start and end:
-        #     try:
-        #         datetime.strptime(start, "%Y-%m-%d")
-        #         datetime.strptime(end, "%Y-%m-%d")
-        #         qry = DBSession.query(User).filter(
-        # and_(User.birthday <= '1988-01-17', User.birthday >= '1985-01-17'))
-        #     except ValueError:
-        #         return jsonify({"message": "Incorrect argument format, arguments start and end should be YYYY-MM-DD"})
-
-        # elif start:
-        #     try:
-        #         datetime.strptime(start, "%Y-%m-%d")
-        #     except ValueError:
-        #         return jsonify({"message": "Incorrect argument format, arguments start and end should be YYYY-MM-DD"})
-
-        # elif end:
-        #     try:
-        #         datetime.strptime(end, "%Y-%m-%d")
-        #     except ValueError:
-        #         return jsonify({"message": "Incorrect argument format, end argument should be YYYY-MM-DD"})
-
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 5, type=int)
+    
+        all_btc_price = BTC.query.paginate(page=page, per_page=per_page)
 
-        all_btc_price = BTC.query.filter_by().paginate(page=page, per_page=per_page)
+        result = btcs_schema.dump(all_btc_price.items)
+        return jsonify(result), HTTP_200_OK
 
-        data = []
-
-        for btc_price in all_btc_price.items:
-            data.append({
-                "btc_datetime": btc_price.btc_datetime,
-                "Open": btc_price.Open,
-                "High": btc_price.High,
-                "Low": btc_price.Low,
-                "Close": btc_price.Close,
-                "Adj_Close": btc_price.Adj_Close,
-                "Volume": btc_price.Volume,
-                "created_at": btc_price.created_at,
-                "updated_at": btc_price.updated_at
-            })
-
-            meta = {
-                "page": all_btc_price.page,
-                "pages": all_btc_price.pages,
-                "total_count": all_btc_price.total,
-                "prev_page": all_btc_price.prev_num,
-                "next_page": all_btc_price.next_num,
-                "has_next": all_btc_price.has_next,
-                "has_prev": all_btc_price.has_prev,
-            }
-
-        return jsonify({"data": data, "meta": meta}), HTTP_200_OK
         # input example
         # {
         #     "datetime": "2020-07-01+08:00:00",
@@ -128,17 +73,7 @@ def get_btc_price(btc_datetime):
     if not btc_price:
         return jsonify({"message": f"BTC price not found at {btc_datetime}"}), HTTP_404_NOT_FOUND
 
-    return jsonify({
-        "btc_datetime": btc_price.btc_datetime,
-        "Open": btc_price.Open,
-        "High": btc_price.High,
-        "Low": btc_price.Low,
-        "Close": btc_price.Close,
-        "Adj_Close": btc_price.Adj_Close,
-        "Volume": btc_price.Volume,
-        "created_at": btc_price.created_at,
-        "updated_at": btc_price.updated_at
-    }), HTTP_200_OK
+    return btc_schema.jsonify(btc_price), HTTP_200_OK
 
 
 @btc.put("/<string:btc_datetime>")
@@ -170,18 +105,7 @@ def edit_btc_price(btc_datetime):
     btc_price.Volume = Volume
 
     db.session.commit()
-
-    return jsonify({
-        "btc_datetime": btc_price.btc_datetime,
-        "Open": btc_price.Open,
-        "High": btc_price.High,
-        "Low": btc_price.Low,
-        "Close": btc_price.Close,
-        "Adj_Close": btc_price.Adj_Close,
-        "Volume": btc_price.Volume,
-        "created_at": btc_price.created_at,
-        "updated_at": btc_price.updated_at
-    }), HTTP_200_OK
+    return btc_schema.jsonify(btc_price), HTTP_200_OK
 
 
 @btc.delete("/<string:btc_datetime>")

@@ -17,7 +17,7 @@ def create_app(test_config=None):
         app.config.from_mapping(
             SECRET_KEY=os.environ.get("SECRET_KEY"),
             SQLALCHEMY_DATABASE_URI=os.getenv(
-                "CLEARDB_DATABASE_URL",
+                "CLEARDB_DATABASE_URL", # For Heroku development
                 default="mysql+pymysql://root:password@localhost:3306/crypto"  # For local development
             ),
             SQLALCHEMY_TRACK_MODIFICATIONS=False,
